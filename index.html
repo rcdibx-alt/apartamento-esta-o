@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recanto da Serra — Aluguel por Temporada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     PALETA E TIPOGRAFIA
+     ========================================================= */
+  :root{
+    --verde:        #2f4538;   /* verde mata, cor dominante */
+    --verde-claro:  #4a6450;
+    --creme:        #f4efe6;   /* fundo quente */
+    --creme-card:   #fbf8f2;
+    --terra:        #c4622d;   /* acento terracota */
+    --terra-suave:  #e8c9b4;
+    --texto:        #2b2622;
+    --texto-suave:  #6f675e;
+    --linha:        #e2dacb;
+    --indispon:     #cfc7b8;
+    --sombra:       0 18px 50px -20px rgba(47,69,56,.35);
+    --radius:       18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'DM Sans',system-ui,sans-serif;
+    background:var(--creme);
+    color:var(--texto);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* =========================================================
+     HERO
+     ========================================================= */
+  header{position:relative;overflow:hidden;background:var(--verde)}
+  .hero-img{
+    width:100%;height:54vh;min-height:340px;max-height:560px;
+    object-fit:cover;display:block;opacity:.92;
+  }
+  .hero-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to top, rgba(28,40,32,.78) 0%, rgba(28,40,32,.15) 45%, rgba(28,40,32,.35) 100%);
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:28px;
+  }
+  .eyebrow{
+    font-size:.74rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--terra-suave);font-weight:600;margin-bottom:10px;
+  }
+  .hero-overlay h1{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:clamp(2.1rem,6vw,3.6rem);line-height:1.04;color:#fff;
+    max-width:14ch;letter-spacing:-.01em;
+  }
+  .hero-meta{
+    color:#e8e2d4;margin-top:12px;font-size:1rem;display:flex;
+    gap:18px;flex-wrap:wrap;
+  }
+  .hero-meta span{display:inline-flex;align-items:center;gap:6px}
+
+  /* =========================================================
+     LAYOUT PRINCIPAL
+     ========================================================= */
+  .main-grid{
+    display:grid;grid-template-columns:1fr;gap:40px;
+    padding:48px 0 80px;
+  }
+  @media(min-width:900px){
+    .main-grid{grid-template-columns:1.4fr 1fr;gap:56px;align-items:start}
+  }
+
+  section{margin-bottom:42px}
+  h2{
+    font-family:'Fraunces',serif;font-weight:500;
+    font-size:1.7rem;margin-bottom:16px;letter-spacing:-.01em;color:var(--verde);
+  }
+  p.lead{color:var(--texto-suave);font-size:1.06rem;max-width:60ch}
+
+  /* GALERIA */
+  .galeria{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:8px;
+  }
+  .galeria img{
+    width:100%;height:170px;object-fit:cover;border-radius:12px;
+    cursor:pointer;transition:transform .35s ease, filter .35s ease;
+    filter:saturate(.95);
+  }
+  .galeria img:hover{transform:scale(1.02);filter:saturate(1.1)}
+  .galeria img:first-child{grid-column:1 / -1;height:240px}
+
+  /* COMODIDADES */
+  .comodidades{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+  .tag{
+    background:var(--creme-card);border:1px solid var(--linha);
+    padding:9px 15px;border-radius:30px;font-size:.92rem;
+    color:var(--texto);font-weight:500;
+  }
+
+  /* =========================================================
+     CARD DE RESERVA
+     ========================================================= */
+  .booking{
+    background:var(--creme-card);border:1px solid var(--linha);
+    border-radius:var(--radius);padding:24px;box-shadow:var(--sombra);
+    position:sticky;top:24px;
+  }
+  .price-line{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+  .price-line .val{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--verde);font-weight:600}
+  .price-line .unit{color:var(--texto-suave);font-size:.95rem}
+  .min-stay{font-size:.85rem;color:var(--texto-suave);margin-bottom:18px}
+
+  /* CALENDÁRIO */
+  .cal-head{
+    display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+  }
+  .cal-head .mes{font-weight:600;font-size:1.02rem;text-transform:capitalize}
+  .cal-nav{
+    background:var(--creme);border:1px solid var(--linha);border-radius:10px;
+    width:36px;height:36px;cursor:pointer;font-size:1.1rem;color:var(--verde);
+    display:flex;align-items:center;justify-content:center;transition:.2s;
+  }
+  .cal-nav:hover:not(:disabled){background:var(--verde);color:#fff}
+  .cal-nav:disabled{opacity:.3;cursor:not-allowed}
+  .weekdays,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+  .weekdays span{
+    text-align:center;font-size:.72rem;color:var(--texto-suave);
+    font-weight:600;text-transform:uppercase;padding-bottom:6px;
+  }
+  .day{
+    aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    font-size:.92rem;border-radius:9px;cursor:pointer;transition:.12s;
+    border:1px solid transparent;user-select:none;
+  }
+  .day.empty{cursor:default}
+  .day.disabled{color:var(--indispon);cursor:not-allowed;text-decoration:line-through}
+  .day.available:hover{background:var(--terra-suave)}
+  .day.endpoint{background:var(--verde);color:#fff;font-weight:600}
+  .day.inrange{background:var(--terra-suave);border-radius:0}
+  .day.inrange.r-start{border-radius:9px 0 0 9px}
+  .day.inrange.r-end{border-radius:0 9px 9px 0}
+
+  .hint{font-size:.85rem;color:var(--texto-suave);margin:14px 0;min-height:1.2em}
+  .hint.err{color:var(--terra);font-weight:500}
+
+  /* RESUMO */
+  .resumo{border-top:1px solid var(--linha);margin-top:14px;padding-top:16px;display:none}
+  .resumo.show{display:block}
+  .resumo-row{display:flex;justify-content:space-between;font-size:.95rem;margin-bottom:9px;color:var(--texto-suave)}
+  .resumo-row.total{
+    color:var(--texto);font-weight:600;font-size:1.12rem;
+    border-top:1px solid var(--linha);padding-top:12px;margin-top:4px;
+  }
+  .resumo-row.total .v{font-family:'Fraunces',serif;color:var(--verde)}
+
+  .btn{
+    display:block;width:100%;border:none;cursor:pointer;
+    background:var(--terra);color:#fff;font-family:'DM Sans',sans-serif;
+    font-weight:600;font-size:1.02rem;padding:15px;border-radius:12px;
+    margin-top:18px;transition:.2s;letter-spacing:.01em;
+  }
+  .btn:hover{background:#a9521f}
+  .btn:disabled{background:var(--indispon);cursor:not-allowed}
+  .btn-secao{background:none;color:var(--verde);text-decoration:underline;margin-top:10px;padding:6px;font-size:.9rem}
+  .pix-box{
+    display:none;margin-top:16px;background:var(--creme);border:1px dashed var(--terra);
+    border-radius:12px;padding:14px;font-size:.9rem;
+  }
+  .pix-box.show{display:block}
+  .campos{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+  .campos label{font-size:.85rem;color:var(--texto-suave);font-weight:600;display:flex;flex-direction:column;gap:5px}
+  .campos input{
+    font-family:'DM Sans',sans-serif;font-size:1rem;color:var(--texto);
+    background:var(--creme);border:1px solid var(--linha);border-radius:10px;
+    padding:11px 13px;width:100%;font-weight:400;transition:.15s;
+  }
+  .campos input:focus{outline:none;border-color:var(--verde-claro);background:#fff}
+  .campos input::placeholder{color:#a89f90}
+  .pix-box code{
+    display:block;background:#fff;padding:8px 10px;border-radius:8px;margin-top:8px;
+    font-size:.86rem;word-break:break-all;border:1px solid var(--linha);
+  }
+
+  footer{background:var(--verde);color:#d6cfbf;text-align:center;padding:34px 20px;font-size:.9rem}
+  footer a{color:var(--terra-suave)}
+</style>
+</head>
+<body>
+
+<!-- ========================= HERO ========================= -->
+<header>
+  <img class="hero-img" id="heroImg" alt="Foto principal da casa">
+  <div class="hero-overlay">
+    <div class="wrap" style="padding:0">
+      <div class="eyebrow">Aluguel por temporada</div>
+      <h1 id="tituloCasa">Recanto da Serra</h1>
+      <div class="hero-meta">
+        <span>📍 <span id="local">Serra Negra, SP</span></span>
+        <span>👥 Até <span id="hospedes">6</span> hóspedes</span>
+        <span>🛏️ <span id="quartos">3</span> quartos</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="main-grid">
+
+    <!-- COLUNA ESQUERDA: conteúdo -->
+    <div>
+      <section>
+        <h2>Sobre o lugar</h2>
+        <p class="lead" id="descricao"></p>
+        <p class="lead" id="camasInfo" style="margin-top:14px;font-weight:500;color:var(--texto)"></p>
+        <p class="lead" id="descResidencial" style="margin-top:14px"></p>
+      </section>
+
+      <section>
+        <h2>Fotos</h2>
+        <div class="galeria" id="galeria"></div>
+      </section>
+
+      <section>
+        <h2>O que tem na casa</h2>
+        <div class="comodidades" id="comodidades"></div>
+      </section>
+    </div>
+
+    <!-- COLUNA DIREITA: reserva -->
+    <div>
+      <div class="booking">
+        <div class="price-line">
+          <span class="val" id="precoDiaria">R$ 280</span>
+          <span class="unit">/ noite</span>
+        </div>
+        <div class="min-stay" id="minStayLine"></div>
+
+        <div class="cal-head">
+          <button class="cal-nav" id="prevMes" aria-label="Mês anterior">‹</button>
+          <div class="mes" id="mesAtual"></div>
+          <button class="cal-nav" id="nextMes" aria-label="Próximo mês">›</button>
+        </div>
+        <div class="weekdays">
+          <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+        </div>
+        <div class="days" id="dias"></div>
+
+        <div class="hint" id="hint">Selecione a data de entrada.</div>
+
+        <div class="resumo" id="resumo">
+          <div class="resumo-row"><span id="resDiarias">—</span><span class="v" id="resSubtotal">—</span></div>
+          <div class="resumo-row"><span>Taxa de limpeza</span><span class="v" id="resLimpeza">—</span></div>
+          <div class="resumo-row total"><span>Total</span><span class="v" id="resTotal">—</span></div>
+        </div>
+
+        <div class="campos">
+          <label>Seu nome
+            <input type="text" id="inNome" placeholder="Nome completo" autocomplete="name">
+          </label>
+          <label>Congregação
+            <input type="text" id="inCong" placeholder="Nome da sua congregação">
+          </label>
+          <label>Cidade da congregação
+            <input type="text" id="inCidade" placeholder="Cidade">
+          </label>
+        </div>
+
+        <button class="btn" id="btnReservar" disabled>Reservar pelo WhatsApp</button>
+
+        <button class="btn-secao" id="btnPix">Ver dados para pagamento (PIX)</button>
+        <div class="pix-box" id="pixBox">
+          O pagamento é feito por PIX para confirmar a reserva. Após enviar o pedido pelo WhatsApp,
+          você recebe a confirmação das datas e pode pagar com a chave abaixo (ou por um link do Mercado Pago):
+          <code id="pixChave">chave-pix@email.com</code>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div class="wrap" style="padding:0">
+    <strong id="rodapeNome" style="font-family:'Fraunces',serif;font-weight:500;color:#fff;font-size:1.15rem;display:block;margin-bottom:10px"></strong>
+    <p style="max-width:48ch;margin:0 auto">Hospedagem voltada <strong style="color:#fff">exclusivamente para publicadores das boas novas</strong>.</p>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   ⚙️  CONFIGURAÇÃO — mude tudo por aqui
+   ============================================================ */
+const CONFIG = {
+  nomeCasa:   "Apartamento B · Residencial Estação",
+  local:      "Tatuí, SP",
+  hospedes:   3,
+  quartos:    1,
+  camas:      "1 cama de casal + 1 sofá-cama",
+  descricao:  "Apartamento pequeno e totalmente privativo, com sala e cozinha conjugados, quarto com closet e banheiro. Pequeno quintal nos fundos.",
+  descricaoResidencial: "Com apenas 2 apartamentos, o residencial fica em lugar nobre e seguro, ao lado de um posto BR (também de irmãos). No apartamento A reside a irmã Van, que atende os hóspedes. De carro, fica a 5 min da rodoviária e 15 min de Betel.",
+
+  // Preços (em reais)
+  diaria:        99,
+  taxaLimpeza:   180,   // limpeza e arrumação, no ato da reserva
+  minNoites:     1,
+
+  // Contato e pagamento
+  whatsapp:   "5515991900897", // DDI 55 + DDD 15 + número
+  chavePix:   "753.274.308-04", // chave PIX (CPF)
+
+  // Fotos — troque pelos links das SUAS fotos (1ª é a principal/capa)
+  fotos: [
+    "https://picsum.photos/seed/apto-sala/1200/800",
+    "https://picsum.photos/seed/apto-quarto/800/600",
+    "https://picsum.photos/seed/apto-cozinha/800/600",
+    "https://picsum.photos/seed/apto-banheiro/800/600",
+    "https://picsum.photos/seed/apto-quintal/800/600"
+  ],
+
+  comodidades: ["Mobiliado", "Eletrodomésticos", "Máquina lava e seca", "Cozinha equipada", "Roupa de cama", "2 jogos de toalha", "Quintal nos fundos", "Totalmente privativo"],
+
+  // Datas JÁ RESERVADAS (bloqueadas). Formato 'AAAA-MM-DD'.
+  // Liste cada noite ocupada. Ex.: hóspede de 10 a 12 → bloqueie '2026-06-10' e '2026-06-11'.
+  reservadas: [
+  ]
+};
+
+/* ============================================================
+   Aplica a configuração na página
+   ============================================================ */
+const reservadasSet = new Set(CONFIG.reservadas);
+document.title = CONFIG.nomeCasa + " — Aluguel por Temporada";
+document.getElementById('tituloCasa').textContent = CONFIG.nomeCasa;
+document.getElementById('local').textContent = CONFIG.local;
+document.getElementById('hospedes').textContent = CONFIG.hospedes;
+document.getElementById('quartos').textContent = CONFIG.quartos;
+document.getElementById('descricao').textContent = CONFIG.descricao;
+document.getElementById('camasInfo').textContent = "🛏️ " + CONFIG.camas;
+document.getElementById('descResidencial').textContent = CONFIG.descricaoResidencial;
+document.getElementById('precoDiaria').textContent = brl(CONFIG.diaria);
+const minTxt = CONFIG.minNoites > 1 ? `Estadia mínima de ${CONFIG.minNoites} noites · ` : '';
+document.getElementById('minStayLine').textContent = `${minTxt}Taxa de limpeza e arrumação ${brl(CONFIG.taxaLimpeza)}`;
+document.getElementById('heroImg').src = CONFIG.fotos[0];
+document.getElementById('pixChave').textContent = CONFIG.chavePix;
+document.getElementById('rodapeNome').textContent = CONFIG.nomeCasa + " · " + CONFIG.local;
+
+const gal = document.getElementById('galeria');
+CONFIG.fotos.forEach((src,i)=>{
+  const img=document.createElement('img');
+  img.src=src; img.alt="Foto "+(i+1); img.loading="lazy";
+  gal.appendChild(img);
+});
+const com = document.getElementById('comodidades');
+CONFIG.comodidades.forEach(c=>{
+  const t=document.createElement('span'); t.className='tag'; t.textContent=c; com.appendChild(t);
+});
+
+/* ============================================================
+   Utilidades de data
+   ============================================================ */
+function ymd(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fromYmd(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function brl(n){return 'R$ '+n.toLocaleString('pt-BR');}
+function dataExtenso(s){
+  return fromYmd(s).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+}
+function diffNoites(a,b){return Math.round((fromYmd(b)-fromYmd(a))/86400000);}
+
+/* ============================================================
+   Estado do calendário
+   ============================================================ */
+const hoje = new Date(); hoje.setHours(0,0,0,0);
+let viewY = hoje.getFullYear(), viewM = hoje.getMonth();
+let checkIn = null, checkOut = null;
+
+const elDias = document.getElementById('dias');
+const elMes  = document.getElementById('mesAtual');
+const elHint = document.getElementById('hint');
+const elResumo = document.getElementById('resumo');
+const btn = document.getElementById('btnReservar');
+
+function renderCalendario(){
+  elDias.innerHTML='';
+  elMes.textContent = new Date(viewY,viewM,1)
+    .toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+
+  document.getElementById('prevMes').disabled =
+    (viewY===hoje.getFullYear() && viewM===hoje.getMonth());
+
+  const primeiroDiaSemana = new Date(viewY,viewM,1).getDay();
+  const totalDias = new Date(viewY,viewM+1,0).getDate();
+
+  for(let i=0;i<primeiroDiaSemana;i++){
+    const v=document.createElement('div'); v.className='day empty'; elDias.appendChild(v);
+  }
+
+  for(let d=1; d<=totalDias; d++){
+    const dt=new Date(viewY,viewM,d);
+    const s=ymd(dt);
+    const cell=document.createElement('div');
+    cell.className='day'; cell.textContent=d;
+
+    const passado = dt < hoje;
+    const reservado = reservadasSet.has(s);
+
+    if(passado || reservado){
+      cell.classList.add('disabled');
+    }else{
+      cell.classList.add('available');
+      cell.addEventListener('click',()=>selecionar(s));
+      // marcação de seleção
+      if(s===checkIn || s===checkOut){cell.classList.add('endpoint');}
+      else if(checkIn && checkOut && s>checkIn && s<checkOut){cell.classList.add('inrange');}
+    }
+    elDias.appendChild(cell);
+  }
+}
+
+function selecionar(s){
+  // sem entrada, ou faixa já completa → começa de novo
+  if(!checkIn || (checkIn && checkOut)){
+    checkIn=s; checkOut=null;
+    elHint.textContent="Agora selecione a data de saída."; elHint.classList.remove('err');
+  }
+  else if(s>checkIn){
+    // verifica se há data reservada no meio
+    let bloqueado=false;
+    let cur=fromYmd(checkIn);
+    while(ymd(cur)!==s){
+      if(reservadasSet.has(ymd(cur))){bloqueado=true;break;}
+      cur.setDate(cur.getDate()+1);
+    }
+    if(bloqueado){
+      checkIn=s; checkOut=null;
+      elHint.textContent="Há uma data ocupada no meio. Recomeçando a seleção.";
+      elHint.classList.add('err');
+    }else{
+      checkOut=s;
+      const noites=diffNoites(checkIn,checkOut);
+      if(noites<CONFIG.minNoites){
+        elHint.textContent=`Estadia mínima de ${CONFIG.minNoites} noites.`;
+        elHint.classList.add('err');
+        checkOut=null;
+      }else{
+        elHint.textContent=""; elHint.classList.remove('err');
+      }
+    }
+  }
+  else{ // clicou antes da entrada → vira nova entrada
+    checkIn=s; checkOut=null;
+    elHint.textContent="Agora selecione a data de saída."; elHint.classList.remove('err');
+  }
+  renderCalendario();
+  atualizarResumo();
+}
+
+function camposPreenchidos(){
+  return document.getElementById('inNome').value.trim()
+      && document.getElementById('inCong').value.trim()
+      && document.getElementById('inCidade').value.trim();
+}
+
+function atualizarResumo(){
+  if(checkIn && checkOut){
+    const noites=diffNoites(checkIn,checkOut);
+    const subtotal=noites*CONFIG.diaria;
+    const total=subtotal+CONFIG.taxaLimpeza;
+    document.getElementById('resDiarias').textContent=`${brl(CONFIG.diaria)} × ${noites} noite${noites>1?'s':''}`;
+    document.getElementById('resSubtotal').textContent=brl(subtotal);
+    document.getElementById('resLimpeza').textContent=brl(CONFIG.taxaLimpeza);
+    document.getElementById('resTotal').textContent=brl(total);
+    elResumo.classList.add('show');
+    if(camposPreenchidos()){
+      btn.disabled=false;
+      if(!elHint.classList.contains('err')) elHint.textContent="";
+    }else{
+      btn.disabled=true;
+      elHint.textContent="Preencha seu nome, congregação e cidade para reservar.";
+      elHint.classList.remove('err');
+    }
+  }else{
+    elResumo.classList.remove('show');
+    btn.disabled=true;
+  }
+}
+
+['inNome','inCong','inCidade'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', atualizarResumo);
+});
+
+/* ============================================================
+   Ações
+   ============================================================ */
+document.getElementById('prevMes').onclick=()=>{ if(viewM===0){viewM=11;viewY--;}else viewM--; renderCalendario(); };
+document.getElementById('nextMes').onclick=()=>{ if(viewM===11){viewM=0;viewY++;}else viewM++; renderCalendario(); };
+
+btn.onclick=()=>{
+  if(!checkIn||!checkOut||!camposPreenchidos()) return;
+  const noites=diffNoites(checkIn,checkOut);
+  const total=noites*CONFIG.diaria+CONFIG.taxaLimpeza;
+  const nome=document.getElementById('inNome').value.trim();
+  const cong=document.getElementById('inCong').value.trim();
+  const cidade=document.getElementById('inCidade').value.trim();
+  const msg =
+    `Olá! Gostaria de fazer uma reserva — ${CONFIG.nomeCasa}.\n\n`+
+    `👤 ${nome}\n`+
+    `⛪ Congregação: ${cong} (${cidade})\n\n`+
+    `🗓️ Entrada: ${dataExtenso(checkIn)}\n`+
+    `🗓️ Saída: ${dataExtenso(checkOut)}\n`+
+    `🌙 ${noites} noite${noites>1?'s':''}\n`+
+    `💰 Total: ${brl(total)}\n\n`+
+    `As datas estão disponíveis?`;
+  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`,'_blank');
+};
+
+document.getElementById('btnPix').onclick=()=>{
+  document.getElementById('pixBox').classList.toggle('show');
+};
+
+renderCalendario();
+</script>
+</body>
+</html>
