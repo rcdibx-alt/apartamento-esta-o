@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Recanto da Serra — Aluguel por Temporada</title>
+<title>Apartamento B · Residencial Estação — Aluguel por Temporada</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -82,6 +82,14 @@
     font-size:1.7rem;margin-bottom:16px;letter-spacing:-.01em;color:var(--verde);
   }
   p.lead{color:var(--texto-suave);font-size:1.06rem;max-width:60ch}
+  .capacidade{
+    display:flex;flex-wrap:wrap;gap:14px 26px;margin:20px 0;
+    background:var(--creme-card);border:1px solid var(--terra-suave);
+    border-left:5px solid var(--terra);border-radius:14px;padding:18px 22px;
+  }
+  .capacidade .item{display:flex;align-items:center;gap:9px;font-weight:600;color:var(--texto);font-size:1.02rem}
+  .capacidade .item .ic{font-size:1.3rem;line-height:1}
+  .capacidade .item small{display:block;font-weight:400;color:var(--texto-suave);font-size:.82rem;margin-top:1px}
 
   /* GALERIA */
   .galeria{
@@ -115,6 +123,12 @@
   .price-line .val{font-family:'Fraunces',serif;font-size:1.9rem;color:var(--verde);font-weight:600}
   .price-line .unit{color:var(--texto-suave);font-size:.95rem}
   .min-stay{font-size:.85rem;color:var(--texto-suave);margin-bottom:18px}
+  .horarios{
+    display:flex;gap:18px;font-size:.85rem;color:var(--verde);font-weight:500;
+    background:var(--creme);border:1px solid var(--linha);border-radius:10px;
+    padding:10px 13px;margin:-6px 0 18px;
+  }
+  .horarios span{display:inline-flex;align-items:center;gap:5px}
 
   /* CALENDÁRIO */
   .cal-head{
@@ -199,11 +213,11 @@
   <div class="hero-overlay">
     <div class="wrap" style="padding:0">
       <div class="eyebrow">Aluguel por temporada</div>
-      <h1 id="tituloCasa">Recanto da Serra</h1>
+      <h1 id="tituloCasa">Apartamento B · Residencial Estação</h1>
       <div class="hero-meta">
         <span>📍 <span id="local">Serra Negra, SP</span></span>
-        <span>👥 Até <span id="hospedes">6</span> hóspedes</span>
-        <span>🛏️ <span id="quartos">3</span> quartos</span>
+        <span id="metaHospedes"></span>
+        <span id="metaQuartos"></span>
       </div>
     </div>
   </div>
@@ -217,7 +231,7 @@
       <section>
         <h2>Sobre o lugar</h2>
         <p class="lead" id="descricao"></p>
-        <p class="lead" id="camasInfo" style="margin-top:14px;font-weight:500;color:var(--texto)"></p>
+        <div class="capacidade" id="capBox"></div>
         <p class="lead" id="descResidencial" style="margin-top:14px"></p>
       </section>
 
@@ -240,6 +254,7 @@
           <span class="unit">/ noite</span>
         </div>
         <div class="min-stay" id="minStayLine"></div>
+        <div class="horarios" id="horariosLine"></div>
 
         <div class="cal-head">
           <button class="cal-nav" id="prevMes" aria-label="Mês anterior">‹</button>
@@ -302,6 +317,7 @@ const CONFIG = {
   hospedes:   3,
   quartos:    1,
   camas:      "1 cama de casal + 1 sofá-cama",
+  pet:        "1 pet pequeno (sob consulta)",
   descricao:  "Apartamento pequeno e totalmente privativo, com sala e cozinha conjugados, quarto com closet e banheiro. Pequeno quintal nos fundos.",
   descricaoResidencial: "Com apenas 2 apartamentos, o residencial fica em lugar nobre e seguro, ao lado de um posto BR (também de irmãos). No apartamento A reside a irmã Van, que atende os hóspedes. De carro, fica a 5 min da rodoviária e 15 min de Betel.",
 
@@ -309,6 +325,8 @@ const CONFIG = {
   diaria:        99,
   taxaLimpeza:   180,   // limpeza e arrumação, no ato da reserva
   minNoites:     1,
+  checkin:       "15h",   // horário de entrada (a partir de)
+  checkout:      "13h",   // horário de saída (até)
 
   // Contato e pagamento
   whatsapp:   "5515991900897", // DDI 55 + DDD 15 + número
@@ -323,7 +341,7 @@ const CONFIG = {
     "https://picsum.photos/seed/apto-quintal/800/600"
   ],
 
-  comodidades: ["Mobiliado", "Eletrodomésticos", "Máquina lava e seca", "Cozinha equipada", "Roupa de cama", "2 jogos de toalha", "Quintal nos fundos", "Totalmente privativo"],
+  comodidades: ["Wi-Fi", "TV", "Cozinha equipada", "Eletrodomésticos", "Máquina lava e seca", "Mobiliado", "Roupa de cama", "2 jogos de toalha", "Estacionamento gratuito no local", "Quintal nos fundos", "Câmeras de segurança (área externa)", "Totalmente privativo"],
 
   // Datas JÁ RESERVADAS (bloqueadas). Formato 'AAAA-MM-DD'.
   // Liste cada noite ocupada. Ex.: hóspede de 10 a 12 → bloqueie '2026-06-10' e '2026-06-11'.
@@ -338,14 +356,18 @@ const reservadasSet = new Set(CONFIG.reservadas);
 document.title = CONFIG.nomeCasa + " — Aluguel por Temporada";
 document.getElementById('tituloCasa').textContent = CONFIG.nomeCasa;
 document.getElementById('local').textContent = CONFIG.local;
-document.getElementById('hospedes').textContent = CONFIG.hospedes;
-document.getElementById('quartos').textContent = CONFIG.quartos;
+document.getElementById('metaHospedes').textContent = `👥 Até ${CONFIG.hospedes} ${CONFIG.hospedes>1?'hóspedes':'hóspede'}`;
+document.getElementById('metaQuartos').textContent = `🛏️ ${CONFIG.quartos} ${CONFIG.quartos>1?'quartos':'quarto'}`;
 document.getElementById('descricao').textContent = CONFIG.descricao;
-document.getElementById('camasInfo').textContent = "🛏️ " + CONFIG.camas;
+document.getElementById('capBox').innerHTML =
+  `<div class="item"><span class="ic">👥</span> Até ${CONFIG.hospedes} hóspedes</div>`+
+  `<div class="item"><span class="ic">🛏️</span> ${CONFIG.camas}</div>`+
+  `<div class="item"><span class="ic">🐾</span> ${CONFIG.pet}</div>`;
 document.getElementById('descResidencial').textContent = CONFIG.descricaoResidencial;
 document.getElementById('precoDiaria').textContent = brl(CONFIG.diaria);
 const minTxt = CONFIG.minNoites > 1 ? `Estadia mínima de ${CONFIG.minNoites} noites · ` : '';
 document.getElementById('minStayLine').textContent = `${minTxt}Taxa de limpeza e arrumação ${brl(CONFIG.taxaLimpeza)}`;
+document.getElementById('horariosLine').innerHTML = `<span>🕒 Check-in a partir das ${CONFIG.checkin}</span><span>🕐 Check-out até ${CONFIG.checkout}</span>`;
 document.getElementById('heroImg').src = CONFIG.fotos[0];
 document.getElementById('pixChave').textContent = CONFIG.chavePix;
 document.getElementById('rodapeNome').textContent = CONFIG.nomeCasa + " · " + CONFIG.local;
