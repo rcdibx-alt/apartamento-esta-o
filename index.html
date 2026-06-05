@@ -301,11 +301,14 @@
           <label>Seu nome
             <input type="text" id="inNome" placeholder="Nome completo" autocomplete="name">
           </label>
+          <label>DDD e telefone
+            <input type="tel" id="inTel" placeholder="(15) 99999-9999" autocomplete="tel">
+          </label>
           <label>Congregação
             <input type="text" id="inCong" placeholder="Nome da sua congregação">
           </label>
-          <label>Cidade da congregação
-            <input type="text" id="inCidade" placeholder="Cidade">
+          <label>Cidade/Estado
+            <input type="text" id="inCidade" placeholder="Cidade/Estado">
           </label>
         </div>
 
@@ -536,6 +539,7 @@ function selecionar(s){
 function camposPreenchidos(){
   return document.getElementById('inHospedes').value
       && document.getElementById('inNome').value.trim()
+      && document.getElementById('inTel').value.trim()
       && document.getElementById('inCong').value.trim()
       && document.getElementById('inCidade').value.trim();
 }
@@ -555,7 +559,7 @@ function atualizarResumo(){
       if(!elHint.classList.contains('err')) elHint.textContent="";
     }else{
       btn.disabled=true;
-      elHint.textContent="Preencha hóspedes, nome, congregação e cidade para reservar.";
+      elHint.textContent="Preencha hóspedes, nome, telefone, congregação e cidade para reservar.";
       elHint.classList.remove('err');
     }
   }else{
@@ -564,7 +568,7 @@ function atualizarResumo(){
   }
 }
 
-['inHospedes','inNome','inCong','inCidade'].forEach(id=>{
+['inHospedes','inNome','inTel','inCong','inCidade'].forEach(id=>{
   document.getElementById(id).addEventListener('input', atualizarResumo);
   document.getElementById(id).addEventListener('change', atualizarResumo);
 });
@@ -580,12 +584,14 @@ btn.onclick=()=>{
   const noites=diffNoites(checkIn,checkOut);
   const total=noites*CONFIG.diaria+CONFIG.taxaLimpeza;
   const nome=document.getElementById('inNome').value.trim();
+  const tel=document.getElementById('inTel').value.trim();
   const cong=document.getElementById('inCong').value.trim();
   const cidade=document.getElementById('inCidade').value.trim();
   const hosp=document.getElementById('inHospedes').value;
   const msg =
     `Olá! Gostaria de fazer uma reserva — ${CONFIG.nomeCasa}.\n\n`+
     `👤 ${nome}\n`+
+    `📱 ${tel}\n`+
     `👥 ${hosp} ${hosp>1?'hóspedes':'hóspede'}\n`+
     `🏢 Congregação: ${cong} (${cidade})\n\n`+
     `🗓️ Entrada: ${dataExtenso(checkIn)}\n`+
