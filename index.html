@@ -381,10 +381,15 @@ const CONFIG = {
 
   comodidades: ["Wi-Fi", "TV", "Cozinha equipada", "Eletrodomésticos", "Máquina lava e seca", "Mobiliado", "Roupa de cama", "2 jogos de toalha", "Estacionamento gratuito no local", "Quintal nos fundos", "Câmeras de segurança (área externa)", "Totalmente privativo"],
 
-  // Datas JÁ RESERVADAS (bloqueadas). Formato 'AAAA-MM-DD'.
-  // Liste cada noite ocupada. Ex.: hóspede de 10 a 12 → bloqueie '2026-06-10' e '2026-06-11'.
+  // Datas JÁ RESERVADAS (bloqueadas) — controle MANUAL (opcional).
+  // Use para bloquear datas avulsas (uso próprio, manutenção). Formato 'AAAA-MM-DD'.
   reservadas: [
-  ]
+  ],
+
+  // 📋 PLANILHA — cole aqui a URL CSV publicada do Google Sheets.
+  // Deixe "" (vazio) para usar só a lista manual acima. Quando preenchida,
+  // o site bloqueia automaticamente as datas que estiverem na planilha.
+  planilhaCSV: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQsRyODOl4qZ-5hi6mmMVDqzQy8l2D_pPXOuNCcUMJDh3bccHp9nHZNZVpKziCzTFvHAmmVteHJ5-7t/pub?gid=1103718108&single=true&output=csv"
 };
 
 /* ============================================================
@@ -607,6 +612,58 @@ document.getElementById('btnPix').onclick=()=>{
 };
 
 renderCalendario();
+
+/* ============================================================
+   Lê as datas reservadas da planilha do Google (CSV publicado)
+   ============================================================ */
+// Quebra uma linha CSV respeitando aspas
+function parseLinhaCSV(linha){
+  const out=[]; let val='', dentro=false;
+  for(let i=0;i<linha.length;i++){
+    const c=linha[i];
+    if(c==='"'){ if(dentro && linha[i+1]==='"'){val+='"';i++;} else dentro=!dentro; }
+    else if(c===',' && !dentro){ out.push(val); val=''; }
+    else val+=c;
+  }
+  out.push(val);
+  return out.map(s=>s.trim());
+}
+// Converte 'DD/MM/AAAA' ou 'AAAA-MM-DD' para Date (ou null)
+function parseData(s){
+  if(!s) return null;
+  s=s.trim();
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);      // DD/MM/AAAA
+  if(m) return new Date(+m[3], +m[2]-1, +m[1]);
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);             // AAAA-MM-DD
+  if(m) return new Date(+m[1], +m[2]-1, +m[3]);
+  return null;
+}
+function carregarPlanilha(){
+  if(!CONFIG.planilhaCSV) return;
+  fetch(CONFIG.planilhaCSV)
+    .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+    .then(txt=>{
+      const linhas=txt.split(/\r?\n/).filter(l=>l.trim()!=='');
+      if(linhas.length<2) return;
+      const cab=parseLinhaCSV(linhas[0]).map(h=>h.toLowerCase());
+      const iEnt=cab.findIndex(h=>h.includes('entrada'));
+      const iSai=cab.findIndex(h=>h.includes('saí')||h.includes('saida')||h.includes('saída'));
+      if(iEnt<0||iSai<0) return;
+      let novas=0;
+      for(let i=1;i<linhas.length;i++){
+        const col=parseLinhaCSV(linhas[i]);
+        const ent=parseData(col[iEnt]), sai=parseData(col[iSai]);
+        if(!ent||!sai||sai<=ent) continue;
+        // bloqueia cada NOITE ocupada: da entrada até a véspera da saída
+        for(let d=new Date(ent); d<sai; d.setDate(d.getDate()+1)){
+          reservadasSet.add(ymd(d)); novas++;
+        }
+      }
+      if(novas>0){ renderCalendario(); atualizarResumo(); }
+    })
+    .catch(err=>console.warn('Não foi possível ler a planilha de reservas:', err.message));
+}
+carregarPlanilha();
 </script>
 </body>
 </html>
