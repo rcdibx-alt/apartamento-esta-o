@@ -35,6 +35,15 @@
     -webkit-font-smoothing:antialiased;
   }
   .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+  .aviso-reforma{
+    display:flex;gap:14px;align-items:flex-start;
+    background:#fbeee4;border:1px solid var(--terra);border-left:5px solid var(--terra);
+    border-radius:14px;padding:16px 20px;margin:28px 0 -12px;
+  }
+  .aviso-reforma .ico{font-size:1.5rem;line-height:1.2;flex-shrink:0}
+  .aviso-reforma .txt{font-size:.98rem;color:#7a3c18}
+  .aviso-reforma .txt strong{color:var(--terra);display:block;margin-bottom:3px;font-size:1.05rem}
+  .aviso-reforma:empty{display:none}
 
   /* =========================================================
      HERO
@@ -90,6 +99,11 @@
   .capacidade .item{display:flex;align-items:center;gap:9px;font-weight:600;color:var(--texto);font-size:1.02rem}
   .capacidade .item .ic{font-size:1.3rem;line-height:1}
   .capacidade .item small{display:block;font-weight:400;color:var(--texto-suave);font-size:.82rem;margin-top:1px}
+  .mapa-link{
+    display:inline-block;margin-top:6px;color:var(--terra);font-weight:600;
+    text-decoration:none;border-bottom:1px solid var(--terra-suave);
+  }
+  .mapa-link:hover{border-bottom-color:var(--terra)}
 
   /* GALERIA */
   .galeria{
@@ -187,14 +201,19 @@
     border-radius:12px;padding:14px;font-size:.9rem;
   }
   .pix-box.show{display:block}
+  .aviso-pgto{
+    font-size:.86rem;color:#7a3c18;background:#fbeee4;border:1px solid var(--terra-suave);
+    border-radius:10px;padding:11px 13px;margin-top:12px;line-height:1.4;text-align:center;
+  }
+  .aviso-pgto strong{color:var(--terra)}
   .campos{display:flex;flex-direction:column;gap:12px;margin-top:18px}
   .campos label{font-size:.85rem;color:var(--texto-suave);font-weight:600;display:flex;flex-direction:column;gap:5px}
-  .campos input{
+  .campos input, .campos select{
     font-family:'DM Sans',sans-serif;font-size:1rem;color:var(--texto);
     background:var(--creme);border:1px solid var(--linha);border-radius:10px;
     padding:11px 13px;width:100%;font-weight:400;transition:.15s;
   }
-  .campos input:focus{outline:none;border-color:var(--verde-claro);background:#fff}
+  .campos input:focus, .campos select:focus{outline:none;border-color:var(--verde-claro);background:#fff}
   .campos input::placeholder{color:#a89f90}
   .pix-box code{
     display:block;background:#fff;padding:8px 10px;border-radius:8px;margin-top:8px;
@@ -224,6 +243,7 @@
 </header>
 
 <div class="wrap">
+  <div class="aviso-reforma" id="avisoReforma"></div>
   <div class="main-grid">
 
     <!-- COLUNA ESQUERDA: conteúdo -->
@@ -275,6 +295,9 @@
         </div>
 
         <div class="campos">
+          <label>Quantos hóspedes
+            <select id="inHospedes"></select>
+          </label>
           <label>Seu nome
             <input type="text" id="inNome" placeholder="Nome completo" autocomplete="name">
           </label>
@@ -287,6 +310,8 @@
         </div>
 
         <button class="btn" id="btnReservar" disabled>Reservar pelo WhatsApp</button>
+
+        <p class="aviso-pgto">⚠️ A reserva só é confirmada após o <strong>pagamento integral antecipado</strong>.</p>
 
         <button class="btn-secao" id="btnPix">Ver dados para pagamento (PIX)</button>
         <div class="pix-box" id="pixBox">
@@ -319,7 +344,8 @@ const CONFIG = {
   camas:      "1 cama de casal + 1 sofá-cama",
   pet:        "1 pet pequeno (sob consulta)",
   descricao:  "Apartamento pequeno e totalmente privativo, com sala e cozinha conjugados, quarto com closet e banheiro. Pequeno quintal nos fundos.",
-  descricaoResidencial: "Com apenas 2 apartamentos, o residencial fica em lugar nobre e seguro, ao lado de um posto BR (também de irmãos). No apartamento A reside a irmã Van, que atende os hóspedes. De carro, fica a 5 min da rodoviária e 15 min de Betel.",
+  descricaoResidencial: "Com apenas 2 apartamentos, o residencial fica em lugar nobre e seguro, de frente com a antiga Estação Ferroviária e ao lado de um Posto BR (também de irmãos). No apartamento A reside a irmã Van, que atende os hóspedes. De carro, fica a 5 min da rodoviária e 15 min de Betel. Há padarias e supermercados nas redondezas.",
+  endereco: "Rua Chiquinha Rodrigues, 47, Tatuí-SP",
 
   // Preços (em reais)
   diaria:        99,
@@ -332,13 +358,22 @@ const CONFIG = {
   whatsapp:   "5515991900897", // DDI 55 + DDD 15 + número
   chavePix:   "753.274.308-04", // chave PIX (CPF)
 
-  // Fotos — troque pelos links das SUAS fotos (1ª é a principal/capa)
+  // Aviso de reforma — deixe avisoReforma como false quando a reforma terminar (some o banner)
+  avisoReforma:      true,
+  avisoTitulo:       "Apartamento em reforma · reservas a partir de julho",
+  avisoTexto:        "As fotos abaixo são anteriores à reforma e à instalação dos equipamentos. O apartamento estará pronto para receber hóspedes a partir de julho — já dá para reservar as suas datas.",
+
+  // Fotos — coloque os arquivos no repositório (mesma pasta do index.html) com estes nomes.
+  // A 1ª é a capa. Aceita .jpg ou .png. Pode ter mais ou menos fotos: é só editar a lista.
   fotos: [
-    "https://picsum.photos/seed/apto-sala/1200/800",
-    "https://picsum.photos/seed/apto-quarto/800/600",
-    "https://picsum.photos/seed/apto-cozinha/800/600",
-    "https://picsum.photos/seed/apto-banheiro/800/600",
-    "https://picsum.photos/seed/apto-quintal/800/600"
+    "foto1.jpg",
+    "foto2.jpg",
+    "foto3.jpg",
+    "foto4.jpg",
+    "foto5.jpg",
+    "foto6.jpg",
+    "foto7.jpg",
+    "foto8.jpg"
   ],
 
   comodidades: ["Wi-Fi", "TV", "Cozinha equipada", "Eletrodomésticos", "Máquina lava e seca", "Mobiliado", "Roupa de cama", "2 jogos de toalha", "Estacionamento gratuito no local", "Quintal nos fundos", "Câmeras de segurança (área externa)", "Totalmente privativo"],
@@ -363,18 +398,34 @@ document.getElementById('capBox').innerHTML =
   `<div class="item"><span class="ic">👥</span> Até ${CONFIG.hospedes} hóspedes</div>`+
   `<div class="item"><span class="ic">🛏️</span> ${CONFIG.camas}</div>`+
   `<div class="item"><span class="ic">🐾</span> ${CONFIG.pet}</div>`;
-document.getElementById('descResidencial').textContent = CONFIG.descricaoResidencial;
+document.getElementById('descResidencial').innerHTML =
+  CONFIG.descricaoResidencial +
+  ` <a class="mapa-link" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONFIG.endereco)}">📍 Ver no Google Maps</a>`;
+
+const selHosp = document.getElementById('inHospedes');
+selHosp.innerHTML = '<option value="" selected disabled>Selecione</option>';
+for(let i=1;i<=CONFIG.hospedes;i++){
+  selHosp.innerHTML += `<option value="${i}">${i} ${i>1?'hóspedes':'hóspede'}</option>`;
+}
 document.getElementById('precoDiaria').textContent = brl(CONFIG.diaria);
 const minTxt = CONFIG.minNoites > 1 ? `Estadia mínima de ${CONFIG.minNoites} noites · ` : '';
 document.getElementById('minStayLine').textContent = `${minTxt}Taxa de limpeza e arrumação ${brl(CONFIG.taxaLimpeza)}`;
 document.getElementById('horariosLine').innerHTML = `<span>🕒 Check-in a partir das ${CONFIG.checkin}</span><span>🕐 Check-out até ${CONFIG.checkout}</span>`;
-document.getElementById('heroImg').src = CONFIG.fotos[0];
+const SEM_FOTO = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#e2dacb"/><text x="50%" y="50%" font-family="sans-serif" font-size="30" fill="#8a8170" text-anchor="middle" dominant-baseline="middle">Foto em breve</text></svg>');
+const heroImg = document.getElementById('heroImg');
+heroImg.onerror = ()=>{ heroImg.onerror=null; heroImg.src=SEM_FOTO; };
+heroImg.src = CONFIG.fotos[0];
 document.getElementById('pixChave').textContent = CONFIG.chavePix;
 document.getElementById('rodapeNome').textContent = CONFIG.nomeCasa + " · " + CONFIG.local;
+if(CONFIG.avisoReforma){
+  document.getElementById('avisoReforma').innerHTML =
+    `<span class="ico">🛠️</span><span class="txt"><strong>${CONFIG.avisoTitulo}</strong>${CONFIG.avisoTexto}</span>`;
+}
 
 const gal = document.getElementById('galeria');
 CONFIG.fotos.forEach((src,i)=>{
   const img=document.createElement('img');
+  img.onerror=()=>{img.onerror=null;img.src=SEM_FOTO;};
   img.src=src; img.alt="Foto "+(i+1); img.loading="lazy";
   gal.appendChild(img);
 });
@@ -483,7 +534,8 @@ function selecionar(s){
 }
 
 function camposPreenchidos(){
-  return document.getElementById('inNome').value.trim()
+  return document.getElementById('inHospedes').value
+      && document.getElementById('inNome').value.trim()
       && document.getElementById('inCong').value.trim()
       && document.getElementById('inCidade').value.trim();
 }
@@ -503,7 +555,7 @@ function atualizarResumo(){
       if(!elHint.classList.contains('err')) elHint.textContent="";
     }else{
       btn.disabled=true;
-      elHint.textContent="Preencha seu nome, congregação e cidade para reservar.";
+      elHint.textContent="Preencha hóspedes, nome, congregação e cidade para reservar.";
       elHint.classList.remove('err');
     }
   }else{
@@ -512,8 +564,9 @@ function atualizarResumo(){
   }
 }
 
-['inNome','inCong','inCidade'].forEach(id=>{
+['inHospedes','inNome','inCong','inCidade'].forEach(id=>{
   document.getElementById(id).addEventListener('input', atualizarResumo);
+  document.getElementById(id).addEventListener('change', atualizarResumo);
 });
 
 /* ============================================================
@@ -529,10 +582,12 @@ btn.onclick=()=>{
   const nome=document.getElementById('inNome').value.trim();
   const cong=document.getElementById('inCong').value.trim();
   const cidade=document.getElementById('inCidade').value.trim();
+  const hosp=document.getElementById('inHospedes').value;
   const msg =
     `Olá! Gostaria de fazer uma reserva — ${CONFIG.nomeCasa}.\n\n`+
     `👤 ${nome}\n`+
-    `⛪ Congregação: ${cong} (${cidade})\n\n`+
+    `👥 ${hosp} ${hosp>1?'hóspedes':'hóspede'}\n`+
+    `🏢 Congregação: ${cong} (${cidade})\n\n`+
     `🗓️ Entrada: ${dataExtenso(checkIn)}\n`+
     `🗓️ Saída: ${dataExtenso(checkOut)}\n`+
     `🌙 ${noites} noite${noites>1?'s':''}\n`+
