@@ -385,6 +385,10 @@ const CONFIG = {
   avisoTitulo:       "Apartamento em reforma · reservas a partir de julho",
   avisoTexto:        "As fotos abaixo são anteriores à reforma e à instalação dos equipamentos. O apartamento estará pronto para receber hóspedes a partir de julho — já dá para reservar as suas datas.",
 
+  // Sempre que TROCAR uma foto mantendo o mesmo nome, aumente este número (2, 3, 4...).
+  // Isso força o navegador a baixar a versão nova em vez da antiga (resolve o cache).
+  fotoVersao: 2,
+
   // Fotos — coloque os arquivos no repositório (mesma pasta do index.html) com estes nomes.
   // A 1ª é a capa. Aceita .jpg ou .png. Pode ter mais ou menos fotos: é só editar a lista.
   fotos: [
@@ -447,9 +451,10 @@ const minTxt = CONFIG.minNoites > 1 ? `Estadia mínima de ${CONFIG.minNoites} no
 document.getElementById('minStayLine').textContent = `${minTxt}Taxa de limpeza e arrumação ${brl(CONFIG.taxaLimpeza)}`;
 document.getElementById('horariosLine').innerHTML = `<span>🕒 Check-in a partir das ${CONFIG.checkin}</span><span>🕐 Check-out até ${CONFIG.checkout}</span>`;
 const SEM_FOTO = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#e2dacb"/><text x="50%" y="50%" font-family="sans-serif" font-size="30" fill="#8a8170" text-anchor="middle" dominant-baseline="middle">Foto em breve</text></svg>');
+const _v = CONFIG.fotoVersao ? ('?v=' + CONFIG.fotoVersao) : '';
 const heroImg = document.getElementById('heroImg');
 heroImg.onerror = ()=>{ heroImg.onerror=null; heroImg.src=SEM_FOTO; };
-heroImg.src = CONFIG.fotos[0];
+heroImg.src = CONFIG.fotos[0] + _v;
 document.getElementById('pixChave').textContent = CONFIG.chavePix;
 document.getElementById('rodapeNome').textContent = CONFIG.nomeCasa + " · " + CONFIG.local;
 if(CONFIG.avisoReforma){
@@ -466,7 +471,7 @@ const gal = document.getElementById('galeria');
 CONFIG.fotos.forEach((src,i)=>{
   const img=document.createElement('img');
   img.onerror=()=>{img.onerror=null;img.src=SEM_FOTO;};
-  img.src=src; img.alt="Foto "+(i+1); img.loading="lazy";
+  img.src=src + _v; img.alt="Foto "+(i+1); img.loading="lazy";
   gal.appendChild(img);
 });
 const com = document.getElementById('comodidades');
